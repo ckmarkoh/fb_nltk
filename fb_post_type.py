@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
 
-from pattern.vector import Document, Model, TFIDF, SVM, kfoldcv
+from pattern.vector import Document, Model, TFIDF, SVM, kfoldcv,REGRESSION,RADIAL,CLASSIFICATION
 from pattern.db import csv 
 from sys import argv
 import jieba
+import json
 
 # extraversion, agreeable, conscientiousness, neuroticism, openness
 category = ['ext', 'agr', 'con', 'neu', 'ope'] 
 
 # open the corpus file
-data = csv('corpus.csv')
+data = csv('./csv/corpus.csv')
 
 # create the document.vector
 data_doc = {}
@@ -34,7 +35,7 @@ for cate in category:
 #for cate in category:
 #    print cate, kfoldcv(SVM, data_doc[cate], folds=10, k=100)
 
-key = csv('keywords.csv')
+key = csv('./csv/keywords.csv')
 keywords = {}
 for cate in category:
     keywords[cate] = ['','']
@@ -68,7 +69,8 @@ for cate in category:
 
 svm = {}
 for cate in category:
-    svm[cate] = SVM(train = new_data[cate])
+    svm[cate] = SVM(train = new_data[cate],type=CLASSIFICATION)#,kernel=RADIAL)
+    #svm[cate] = NB(train = new_data[cate], method=MULTINOMIAL, alpha=0.0001)
 # the weight of 愛 is doubled, since it is in the ext list
 #for d,w in new_data['ext'][22].keywords(top=10):
 #    print d,w
@@ -79,15 +81,27 @@ for cate in category:
 #data_raw = '''真爛，不想可惜'''
 #for n in range(20):
 #    data_raw = data[n][0]
-f=open(argv[1])
-data_raw=' '.join(f.readlines())
-#data_raw=argv[1]
-data_sub = ' '.join(jieba.cut(data_raw))
-#print data_sub
-
-print 'Your personality is:'
-print '  Extraversion:     ', svm['ext'].classify(Document(data_sub))
-print '  Agreeable:        ', svm['agr'].classify(Document(data_sub))
-print '  Conscientiousness:', svm['con'].classify(Document(data_sub))
-print '  Neuroticism:      ', svm['neu'].classify(Document(data_sub))
-print '  Openness:         ', svm['ope'].classify(Document(data_sub))
+try:
+    with open("./subjects/users.u%s.feed.json"%argv[1]) as f:
+        fcontent=f.readlines()
+        data_raw=' '.join(filter(None, [ s.get('description')  for s in [json.loads(jst) for jst in fcontent]]))
+        #print data_raw
+        #data_raw=argv[1]
+        data_sub = ' '.join(jieba.cut(data_raw))
+        #print data_sub
+        f1=svm['ext'].classify(Document(data_sub))  
+        f2=svm['agr'].classify(Document(data_sub))  
+        f3=svm['con'].classify(Document(data_sub))  
+        f4=svm['neu'].classify(Document(data_sub))  
+        f5=svm['ope'].classify(Document(data_sub))
+        print '{"EXT":%f,"AGR":%f,"CON":%f,"NEO":%f,"OPE":%f}'%(f1,f2,f3,f4,f5)
+        #print f1,f2,f3,f4,f5
+        #x1,x2,x3,x4,x5= int(svm['ext'].classify(Document(data_sub))) , int(svm['agr'].classify(Document(data_sub))) , int(svm['con'].classify(Document(data_sub))) , int(svm['neu'].classify(Document(data_sub))) , int(svm['ope'].classify(Document(data_sub)))
+       # print 'Your personality is:'
+       # print '  Extraversion:     ', int(svm['ext'].classify(Document(data_sub)))
+       # print '  Agreeable:        ', int(svm['agr'].classify(Document(data_sub)))
+       # print '  Conscientiousness:', int(svm['con'].classify(Document(data_sub)))
+       # print '  Neuroticism:      ', int(svm['neu'].classify(Document(data_sub)))
+       # print '  Openness:         ', int(svm['ope'].classify(Document(data_sub)))
+except IOError:
+    print '{"EXT":%f,"AGR":%f,"CON":%f,"NEO":%f,"OPE":%f}'%(0,0,0,0,0)
