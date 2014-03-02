@@ -38,7 +38,8 @@ if ($user) {
   $logoutUrl = $facebook->getLogoutUrl();
 } else {
 	$statusUrl = $facebook->getLoginStatusUrl();
-	$params = array('scope' => 'read_stream','redirect_uri' => 'http://r444b.ee.ntu.edu.tw/facebook_nltk/');
+	//$params = array('scope' => 'read_stream','redirect_uri' => 'http://r444b.ee.ntu.edu.tw/facebook_nltk/');
+	$params = array('scope' => 'read_stream');
 	$loginUrl = $facebook->getLoginUrl($params);
 }
 ?>
@@ -78,11 +79,11 @@ if ($user) {
                 </div> 
         </div>';
         echo '</div>';
-         echo "<p><a href=\"$logoutUrl\" class=\"fb_login\">Logout</a></p>";
+        // echo "<p><a href=\"$logoutUrl\" class=\"fb_login\">Logout</a></p>";
     }
      else{
-        echo '<p><strong><em>You are not Connected.</em></strong></p>';
-        echo " <p><a href=\"$loginUrl\" class=\"fb_login\">Login with Facebook</a></p>";
+        echo '<p><strong><em>Please login your facebook.</em></strong></p>';
+        echo " <p><a href=\"$loginUrl\" class=\"fb_login\">Login Facebook</a></p>";
         }
      ?>
     <script type="text/javascript">
