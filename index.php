@@ -14,43 +14,19 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-require 'util.php';
-require './src/facebook.php';
-// Create our Application instance (replace this with your appId and secret).
-$facebook = new Facebook(array(
-  'appId'  => '611086378941074',
-  'secret' => '57ae467b8039fda188c683fc62c2021b',
-));
-// Get User ID
-$user = $facebook->getUser();
-if ($user) {
-  try {
-    // Proceed knowing you have a logged in user who's authenticated.
-	$target='me';
-    $user_profile = $facebook->api('/'.$target);
-  } catch (FacebookApiException $e) {
-    error_log($e);
-    $user = null;
-  }
-}
-// Login or logout url will be needed depending on current user state.
-if ($user) {
-  $logoutUrl = $facebook->getLogoutUrl();
-} else {
-	$statusUrl = $facebook->getLoginStatusUrl();
-	//$params = array('scope' => 'read_stream','redirect_uri' => 'http://r444b.ee.ntu.edu.tw/facebook_nltk/');
-	$params = array('scope' => 'read_stream');
-	$loginUrl = $facebook->getLoginUrl($params);
-}
+require_once( 'util.php');
+require_once( './facebook_php/fb_login.php');
 ?>
 <!doctype html>
 <html xmlns:fb="http://www.facebook.com/2008/fbml">
   <head>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
     <title>What's Your Personality?</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"> </script>
   </head>
   <body>
+    <div id="fb-root">
+    </div>
     <div id="div_outer">
     <h2>What's Your Personality? </h2>
 	</form>
@@ -83,13 +59,14 @@ if ($user) {
     }
      else{
         echo '<p><strong><em>Please login your facebook.</em></strong></p>';
-        echo " <p><a href=\"$loginUrl\" class=\"fb_login\">Login Facebook</a></p>";
+        #echo " <p><a href=\"$loginUrl\" class=\"fb_login\">Login Facebook</a></p>";
+        echo "<fb:login-button></fb:login-button>";
         }
      ?>
     <script type="text/javascript">
         var uid = "<?php echo $user_profile['id'] ?>";
         var access_token = "<?php echo $access_token ?>";
-        var target="http://r444b.ee.ntu.edu.tw/facebook_nltk/runfbreader.php";
+        var target="http://r444b.ee.ntu.edu.tw/facebook_nltk/analyzer/runfbreader.php";
         var result="";
         var key1=["EXT","AGR","CON","NEO","OPE"];
         var key2=["Extraversion", "Agreeableness", "Conscientiousness", "Neuroticism" ,"Openness"];
@@ -112,6 +89,28 @@ if ($user) {
             }
             $("#ps_div").html(echos);
       });
+    </script>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId: '<?php echo $facebook->getAppID() ?>',
+          cookie: true,
+          xfbml: true,
+          oauth: true
+        });
+        FB.Event.subscribe('auth.login', function(response) {
+          window.location.reload();
+        });
+        FB.Event.subscribe('auth.logout', function(response) {
+          window.location.reload();
+        });
+      };
+      (function() {
+        var e = document.createElement('script'); e.async = true;
+        e.src = document.location.protocol +
+          '//connect.facebook.net/en_US/all.js';
+        document.getElementById('fb-root').appendChild(e);
+      }());
     </script>
     </div>
   </body>
