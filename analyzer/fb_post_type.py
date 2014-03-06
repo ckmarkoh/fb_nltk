@@ -6,6 +6,7 @@ from pattern.db import csv
 from sys import argv
 import jieba
 import json
+import python_db
 
 # extraversion, agreeable, conscientiousness, neuroticism, openness
 category = ['ext', 'agr', 'con', 'neu', 'ope'] 
@@ -81,20 +82,24 @@ for cate in category:
 #data_raw = '''真爛，不想可惜'''
 #for n in range(20):
 #    data_raw = data[n][0]
-try:
-    with open("./subjects/users.u%s.feed.json"%argv[1]) as f:
-        fcontent=f.readlines()
-        data_raw=' '.join(filter(None, [ s.get('description')  for s in [json.loads(jst) for jst in fcontent]]))
-        #print data_raw
-        #data_raw=argv[1]
-        data_sub = ' '.join(jieba.cut(data_raw))
-        #print data_sub
-        f1=svm['ext'].classify(Document(data_sub))  
-        f2=svm['agr'].classify(Document(data_sub))  
-        f3=svm['con'].classify(Document(data_sub))  
-        f4=svm['neu'].classify(Document(data_sub))  
-        f5=svm['ope'].classify(Document(data_sub))
-        print '{"EXT":%f,"AGR":%f,"CON":%f,"NEO":%f,"OPE":%f}'%(f1,f2,f3,f4,f5)
+
+users = python_db.users
+post_array=[s for s in users['u%s'%argv[1]].feed.find()]
+data_raw=' '.join(filter(None, [ s.get('description')  for s in post_array]))
+
+#f=open("./subjects/users.u%s.feed.json"%argv[1]) 
+#fcontent=f.readlines()
+#data_raw=' '.join(filter(None, [ s.get('description')  for s in [json.loads(jst) for jst in fcontent]]))
+#print data_raw
+#data_raw=argv[1]
+data_sub = ' '.join(jieba.cut(data_raw))
+#print data_sub
+f1=svm['ext'].classify(Document(data_sub))  
+f2=svm['agr'].classify(Document(data_sub))  
+f3=svm['con'].classify(Document(data_sub))  
+f4=svm['neu'].classify(Document(data_sub))  
+f5=svm['ope'].classify(Document(data_sub))
+print '{"EXT":%f,"AGR":%f,"CON":%f,"NEO":%f,"OPE":%f}'%(f1,f2,f3,f4,f5)
         #print f1,f2,f3,f4,f5
         #x1,x2,x3,x4,x5= int(svm['ext'].classify(Document(data_sub))) , int(svm['agr'].classify(Document(data_sub))) , int(svm['con'].classify(Document(data_sub))) , int(svm['neu'].classify(Document(data_sub))) , int(svm['ope'].classify(Document(data_sub)))
        # print 'Your personality is:'
@@ -103,5 +108,5 @@ try:
        # print '  Conscientiousness:', int(svm['con'].classify(Document(data_sub)))
        # print '  Neuroticism:      ', int(svm['neu'].classify(Document(data_sub)))
        # print '  Openness:         ', int(svm['ope'].classify(Document(data_sub)))
-except IOError:
-    print '{"EXT":%f,"AGR":%f,"CON":%f,"NEO":%f,"OPE":%f}'%(0,0,0,0,0)
+#except IOError:
+#    print '{"EXT":%f,"AGR":%f,"CON":%f,"NEO":%f,"OPE":%f}'%(0,0,0,0,0)

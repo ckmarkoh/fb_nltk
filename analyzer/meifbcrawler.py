@@ -8,7 +8,10 @@ import time
 import json
 import sys
 import re
+import python_db
 
+
+users = python_db.users
 
 crawl_all = True
 
@@ -22,13 +25,14 @@ def get_paging_parameters(url):
 
     return actionparams
 
-def save_one_user_graph_data(uid, graph, last_start_time_str, action): 
+def save_one_user_graph_data(user,uid, graph, last_start_time_str, action): 
     #print ' action = ' + action
 
     # convert string to struct_time
     # original format '2012-11-24T17:18:44'
-    fw=open("./subjects/users.u%s.%s.json"%(uid,action),'w')
-    fwlist=[]
+    #fw=open("./subjects/users.u%s.%s.json"%(uid,action),'w')
+    user = users['u%s' % uid]
+    #fwlist=[]
     if last_start_time_str:
         last_start_time = time.strptime(last_start_time_str, '%Y-%m-%dT%H:%M:%S')
 
@@ -46,23 +50,24 @@ def save_one_user_graph_data(uid, graph, last_start_time_str, action):
             graph_result = graph.get(target_to_get, params=graph_paging_next_params)
         except facebook.GraphAPIError as grapherr:
             print grapherr
-            fw.write('\n'.join(fwlist))
-            fw.close()
+            #fw.write('\n'.join(fwlist))
+            #fw.close()
             return
 
         # if action is just me, add the whole result directly
         if target_to_get == 'me':
             #user.me.update({time_field_to_check : graph_result[time_field_to_check]}, graph_result, upsert = True)
             #print graph_result #savesave
-            fwlist.append(json.dumps(graph_result))
+            #fwlist.append(json.dumps(graph_result))
+            user.me.update({time_field_to_check : graph_result[time_field_to_check]}, graph_result, upsert = True)
             break
         
         if 'data' in graph_result:
             graph_data = graph_result['data']
         else:
             print 'cannot get %s data from graph API' % target_to_get
-            fw.write('\n'.join(fwlist))
-            fw.close()
+            #fw.write('\n'.join(fwlist))
+            #fw.close()
             return
 
         if 'paging' in graph_result and 'next' in graph_result['paging']:
@@ -87,7 +92,8 @@ def save_one_user_graph_data(uid, graph, last_start_time_str, action):
             
             #user[action].update({final_field_to_check : item[final_field_to_check]}, item, upsert = True)
             #print item #savesave
-            fwlist.append(json.dumps(item))
+            #fwlist.append(json.dumps(item))
+            user[action].update({final_field_to_check : item[final_field_to_check]}, item, upsert = True)
             item_saved_count += 1
 
         print '  %d items saved' % item_saved_count
@@ -98,15 +104,15 @@ def save_one_user_graph_data(uid, graph, last_start_time_str, action):
         print '  next round:', graph_paging_next_params
 
     #print ' done saving action "%s", all %d item(s)\n' % (action, user[action].count())
-    fw.write('\n'.join(fwlist))
-    fw.close()
+    #fw.write('\n'.join(fwlist))
+    #fw.close()
     print ' done saving action "%s"' % (action)
 
 
 def save_one_user(access_token_data):
     access_token = access_token_data['access_token']
     uid = access_token_data['uid']
-    #user = users['u%s' % uid]
+    user = users['u%s' % uid]
      
     #print uid
    
@@ -143,7 +149,7 @@ def save_one_user(access_token_data):
     crawl_start_time_str = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
 
     # do all crawling
-    map(partial(save_one_user_graph_data, uid, graph, access_token_data.get('crawl_start_time')), actions)
+    map(partial(save_one_user_graph_data,user, uid, graph, access_token_data.get('crawl_start_time')), actions)
 
     # save start and finished time
     access_token_data['crawl_start_time'] = crawl_start_time_str

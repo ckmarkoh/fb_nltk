@@ -62,33 +62,37 @@ require_once( './facebook_php/fb_login.php');
         #echo " <p><a href=\"$loginUrl\" class=\"fb_login\">Login Facebook</a></p>";
         echo "<fb:login-button></fb:login-button>";
         }
-     ?>
-    <script type="text/javascript">
-        var uid = "<?php echo $user_profile['id'] ?>";
-        var access_token = "<?php echo $access_token ?>";
-        var target="http://r444b.ee.ntu.edu.tw/facebook_nltk/analyzer/runfbreader.php";
-        var result="";
-        var key1=["EXT","AGR","CON","NEO","OPE"];
-        var key2=["Extraversion", "Agreeableness", "Conscientiousness", "Neuroticism" ,"Openness"];
-        
-        $.ajax({
-          type: "POST",
-          url: target,
-          data: { uid: uid, access_token: access_token },
-          dataType: "json"
-        })
-          .done(function( s ) {
-            result=s;
-            console.log(  s );
-            var echos='';
-            for (var i=0; i<5 ; i++ ){
-              var this_width=Math.floor(result[key1[i]]*500).toString();
-              var this_percent=Math.floor(result[key1[i]]*100).toString();
-              echos +='<div class="p_title"><span class="p_title_inner" style="width:'+this_width+'px;">'+key2[i]+'<br/>'+this_percent+'%</span></div>';
 
-            }
-            $("#ps_div").html(echos);
-      });
+    //echo $user_profile['id'].'<br/>';
+    echo $access_token;
+     ?>
+
+    <script type="text/javascript">
+   //     var uid = "<?php echo $user_profile['id'] ?>";
+   //     var access_token = "<?php echo $access_token ?>";
+   //     var target="http://r444b.ee.ntu.edu.tw/facebook_nltk/analyzer/runfbreader.php";
+   //     var result="";
+   //     var key1=["EXT","AGR","CON","NEO","OPE"];
+   //     var key2=["Extraversion", "Agreeableness", "Conscientiousness", "Neuroticism" ,"Openness"];
+   //     
+   //     $.ajax({
+   //       type: "POST",
+   //       url: target,
+   //       data: { uid: uid, access_token: access_token },
+   //       dataType: "json"
+   //     })
+   //       .done(function( s ) {
+   //         result=s;
+   //         console.log(  s );
+   //         var echos='';
+   //         for (var i=0; i<5 ; i++ ){
+   //           var this_width=Math.floor(result[key1[i]]*500).toString();
+   //           var this_percent=Math.floor(result[key1[i]]*100).toString();
+   //           echos +='<div class="p_title"><span class="p_title_inner" style="width:'+this_width+'px;">'+key2[i]+'<br/>'+this_percent+'%</span></div>';
+
+   //         }
+   //         $("#ps_div").html(echos);
+   //   });
     </script>
     <script>
       window.fbAsyncInit = function() {

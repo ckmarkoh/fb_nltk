@@ -1,7 +1,8 @@
 import os
 import json
 from sys import argv
-
+import python_db
+users = python_db.users
 #some global variables
 personalities = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness']
 extraversion_weights = {'user_events':0.4, 'user_checkins':0.9, 'user_groups':0.2, 'user_photo_video_tags':0.8, 'user_likes_per_status':0.9, 'user_comments_per_status':0.9, 'user_friends':0.9, 'user_friendlists':0.9}
@@ -15,23 +16,25 @@ fpath='./subjects/'
 # calculate the weights for features
 
 def about_me_weight(userid):
-    filename = fpath+'users.u' + userid + '.me.json'
-    try:            
-        about_me = json.loads(open(filename).read())
-    except IOError:
-        return 0.0
+    #filename = fpath+'users.u' + userid + '.me.json'
+    #try:            
+    #    about_me = json.loads(open(filename).read())
+    #except IOError:
+    #    return 0.0
+    about_me=[s for s in users['u%s'%userid].me.find()][0]
     if 'quotes' in about_me:
         return 0.9
     return 0.0
 
 def friends_weight(userid):
-    filename = fpath+'users.u' + userid + '.friends.json'
-    try:
-        with open(filename) as f:
-            friends = f.readlines()
-    except IOError:
-        return 0.3    
-    friends = [json.loads(friend) for friend in friends]
+   # filename = fpath+'users.u' + userid + '.friends.json'
+   # try:
+   #     with open(filename) as f:
+   #         friends = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # friends = [json.loads(friend) for friend in friends]
+    friends=[s for s in users['u%s'%userid].friends.find()]
     if len(friends) < 151:
         return 0.3
     if len(friends) < 601:
@@ -39,13 +42,14 @@ def friends_weight(userid):
     return 1.0
 
 def friendlists_weight(userid):
-    filename = fpath+'users.u' + userid + '.friendlists.json'
-    try:
-        with open(filename) as f:
-            friendlists = f.readlines()
-    except IOError:
-        return 0.3    
-    friendlists = [json.loads(friendlist) for friendlist in friendlists]
+   # filename = fpath+'users.u' + userid + '.friendlists.json'
+   # try:
+   #     with open(filename) as f:
+   #         friendlists = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # friendlists = [json.loads(friendlist) for friendlist in friendlists]
+    friendlists=[s for s in users['u%s'%userid].friendlists.find()]
     if len(friendlists) < 6:
         return 0.3
     if len(friendlists) < 11:
@@ -53,13 +57,14 @@ def friendlists_weight(userid):
     return 1.0
 
 def games_weight(userid):
-    filename = fpath+'users.u' + userid + '.games.json'
-    try:
-        with open(filename) as f:
-               games = f.readlines()
-    except IOError:
-        return 0.3    
-    games = [json.loads(game) for game in games]
+   # filename = fpath+'users.u' + userid + '.games.json'
+   # try:
+   #     with open(filename) as f:
+   #            games = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # games = [json.loads(game) for game in games]
+    games=[s for s in users['u%s'%userid].games.find()]
     if len(games) < 3:
         return 0.3
     if len(games) < 4:
@@ -67,13 +72,14 @@ def games_weight(userid):
     return 1.0
     
 def movies_weight(userid):
-    filename = fpath+'users.u' + userid + '.movies.json'
-    try:
-        with open(filename) as f:
-               movies = f.readlines()
-    except IOError:
-        return 0.3    
-    movies = [json.loads(movie) for movie in movies]
+   # filename = fpath+'users.u' + userid + '.movies.json'
+   # try:
+   #     with open(filename) as f:
+   #            movies = f.readlines()
+   # except IOError:
+   #     return 0.3    
+    #movies = [json.loads(movie) for movie in movies]
+    movies=[s for s in users['u%s'%userid].movies.find()]
     if len(movies) < 11:
         return 0.3
     if len(movies) < 21:
@@ -81,13 +87,14 @@ def movies_weight(userid):
     return 1.0
 
 def music_weight(userid):
-    filename = fpath+'users.u' + userid + '.music.json'
-    try:
-        with open(filename) as f:
-               music = f.readlines()
-    except IOError:
-        return 0.3    
-    music = [json.loads(m) for m in music]
+   # filename = fpath+'users.u' + userid + '.music.json'
+   # try:
+   #     with open(filename) as f:
+   #            music = f.readlines()
+   # except IOError:
+   #     return 0.3    
+    #music = [json.loads(m) for m in music]
+    music =[s for s in users['u%s'%userid]. music.find()]
     if len(music) < 16:
         return 0.3
     if len(music) < 31:
@@ -95,13 +102,14 @@ def music_weight(userid):
     return 1.0
 
 def television_weight(userid):
-    filename = fpath+'users.u' + userid + '.television.json'
-    try:
-        with open(filename) as f:
-               television = f.readlines()
-    except IOError:
-        return 0.3    
-    television = [json.loads(t) for t in television]
+   # filename = fpath+'users.u' + userid + '.television.json'
+   # try:
+   #     with open(filename) as f:
+   #            television = f.readlines()
+   # except IOError:
+   #     return 0.3    
+    #television = [json.loads(t) for t in television]
+    television=[s for s in users['u%s'%userid].television.find()]
     if len(television) < 6:
         return 0.3
     if len(television) < 21:
@@ -109,25 +117,27 @@ def television_weight(userid):
     return 1.0
     
 def books_weight(userid):
-    filename = fpath+'users.u' + userid + '.books.json'
-    try:
-        with open(filename) as f:
-               books = f.readlines()
-    except IOError:
-        return 0.3    
-    books = [json.loads(book) for book in books]
+   # filename = fpath+'users.u' + userid + '.books.json'
+   # try:
+   #     with open(filename) as f:
+   #            books = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # books = [json.loads(book) for book in books]
+    books =[s for s in users['u%s'%userid].books.find()]
     if len(books) < 4:
         return 0.3
     return 1.0
 
 def checkins_weight(userid):
-    filename = fpath+'users.u' + userid + '.checkins.json'
-    try:
-        with open(filename) as f:
-               checkins = f.readlines()
-    except IOError:
-        return 0.3    
-    checkins = [json.loads(checkin) for checkin in checkins]
+   # filename = fpath+'users.u' + userid + '.checkins.json'
+   # try:
+   #     with open(filename) as f:
+   #            checkins = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # checkins = [json.loads(checkin) for checkin in checkins]
+    checkins =[s for s in users['u%s'%userid].checkins.find()]
     if len(checkins) < 101:
         return 0.3
     if len(checkins) < 301:
@@ -135,13 +145,14 @@ def checkins_weight(userid):
     return 1.0
 
 def likes_weight(userid):
-    filename = fpath+'users.u' + userid + '.likes.json'
-    try:
-        with open(filename) as f:
-               likes = f.readlines()
-    except IOError:
-        return 0.3    
-    likes = [json.loads(like) for like in likes]
+   # filename = fpath+'users.u' + userid + '.likes.json'
+   # try:
+   #     with open(filename) as f:
+   #            likes = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # likes = [json.loads(like) for like in likes]
+    likes =[s for s in users['u%s'%userid].likes.find()]
     if len(likes) < 21:
         return 0.3
     if len(likes) < 61:
@@ -149,13 +160,14 @@ def likes_weight(userid):
     return 1.0
 
 def events_weight(userid):
-    filename = fpath+'users.u' + userid + '.events.json'
-    try:
-        with open(filename) as f:
-               events = f.readlines()
-    except IOError:
-        return 0.3    
-    events = [json.loads(event) for event in events]
+   # filename = fpath+'users.u' + userid + '.events.json'
+   # try:
+   #     with open(filename) as f:
+   #            events = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # events = [json.loads(event) for event in events]
+    events =[s for s in users['u%s'%userid].events.find()]
     if len(events) < 11:
         return 0.3
     if len(events) < 36:
@@ -163,13 +175,14 @@ def events_weight(userid):
     return 1.0
 
 def groups_weight(userid):
-    filename = fpath+'users.u' + userid + '.groups.json'
-    try:
-        with open(filename) as f:
-               groups = f.readlines()
-    except IOError:
-        return 0.3    
-    group = [json.loads(group) for group in groups]
+   # filename = fpath+'users.u' + userid + '.groups.json'
+   # try:
+   #     with open(filename) as f:
+   #            groups = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # group = [json.loads(group) for group in groups]
+    groups=[s for s in users['u%s'%userid].groups.find()]
     if len(groups) < 4:
         return 0.3
     if len(groups) < 11:
@@ -177,13 +190,14 @@ def groups_weight(userid):
     return 1.0
     
 def notes_weight(userid):
-    filename = fpath+'users.u' + userid + '.notes.json'
-    try:
-        with open(filename) as f:
-               notes = f.readlines()
-    except IOError:
-        return 0.3    
-    notes = [json.loads(note) for note in notes]
+   # filename = fpath+'users.u' + userid + '.notes.json'
+   # try:
+   #     with open(filename) as f:
+   #            notes = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # notes = [json.loads(note) for note in notes]
+    notes =[s for s in users['u%s'%userid].notes.find()]
     if len(notes) < 4:
         return 0.3
     if len(notes) < 11:
@@ -191,14 +205,15 @@ def notes_weight(userid):
     return 1.0
 
 def statuses_per_month_weight(userid):
-    filename = fpath+'users.u' + userid + '.statuses.json'
-    try:
-        with open(filename) as f:
-               statuses = f.readlines()
-    except IOError:
-        return 0.3    
-    statuses = [json.loads(status) for status in statuses]
-    
+   # filename = fpath+'users.u' + userid + '.statuses.json'
+   # try:
+   #     with open(filename) as f:
+   #            statuses = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # statuses = [json.loads(status) for status in statuses]
+    statuses =[s for s in users['u%s'%userid].statuses.find()]
+
     last_status = statuses[0]
     last_date = last_status['updated_time']
     last_year = int(last_date[:4])
@@ -223,13 +238,14 @@ def statuses_per_month_weight(userid):
     return 1.0
     
 def likes_per_status_weight(userid):
-    filename = fpath+'users.u' + userid + '.statuses.json'
-    try:
-        with open(filename) as f:
-               statuses = f.readlines()
-    except IOError:
-        return 0.3    
-    statuses = [json.loads(status) for status in statuses]
+   # filename = fpath+'users.u' + userid + '.statuses.json'
+   # try:
+   #     with open(filename) as f:
+   #            statuses = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # statuses = [json.loads(status) for status in statuses]
+    statuses =[s for s in users['u%s'%userid].statuses.find()]
     likes = 0
     for status in statuses:
         if 'likes' in status:
@@ -242,13 +258,14 @@ def likes_per_status_weight(userid):
     return 1.0
     
 def comments_per_status_weight(userid):
-    filename = fpath+'users.u' + userid + '.statuses.json'
-    try:
-        with open(filename) as f:
-               statuses = f.readlines()
-    except IOError:
-        return 0.3    
-    statuses = [json.loads(status) for status in statuses]
+   # filename = fpath+'users.u' + userid + '.statuses.json'
+   # try:
+   #     with open(filename) as f:
+   #            statuses = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # statuses = [json.loads(status) for status in statuses]
+    statuses =[s for s in users['u%s'%userid].statuses.find()]
     comments = 0
     for status in statuses:
         if 'comments' in status:
@@ -260,13 +277,14 @@ def comments_per_status_weight(userid):
     return 1.0
 
 def videos_weight(userid):
-    filename = fpath+'users.u' + userid + '.videos.json'
-    try:
-        with open(filename) as f:
-               videos = f.readlines()
-    except IOError:
-        return 0.3    
-    videos = [json.loads(video) for video in videos]
+   # filename = fpath+'users.u' + userid + '.videos.json'
+   # try:
+   #     with open(filename) as f:
+   #            videos = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # videos = [json.loads(video) for video in videos]
+    videos =[s for s in users['u%s'%userid]. videos.find()]
     if len(videos) < 6:
         return 0.3
     if len(videos) < 16:
@@ -274,13 +292,14 @@ def videos_weight(userid):
     return 1.0
 
 def tagged_weight(userid):
-    filename = fpath+'users.u' + userid + '.tagged.json'
-    try:
-        with open(filename) as f:
-               tagged = f.readlines()
-    except IOError:
-        return 0.3    
-    tagged = [json.loads(t) for t in tagged]
+   # filename = fpath+'users.u' + userid + '.tagged.json'
+   # try:
+   #     with open(filename) as f:
+   #            tagged = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # tagged = [json.loads(t) for t in tagged]
+    tagged =[s for s in users['u%s'%userid]. tagged.find()]
     tagged = [tag for tag in tagged if tag['created_time'][:4] == '2013']
     if len(tagged) < 61:
         return 0.3
@@ -289,13 +308,14 @@ def tagged_weight(userid):
     return 1.0
 
 def subscriptions_weight(userid):
-    filename = fpath+'users.u' + userid + '.tagged.json'
-    try:
-        with open(filename) as f:
-               subscriptions = f.readlines()
-    except IOError:
-        return 0.3    
-    subscriptions = [json.loads(subscription) for subscription in subscriptions]
+   # filename = fpath+'users.u' + userid + '.subscriptions.json'
+   # try:
+   #     with open(filename) as f:
+   #            subscriptions = f.readlines()
+   # except IOError:
+   #     return 0.3    
+   # subscriptions = [json.loads(subscription) for subscription in subscriptions]
+    subscriptions =[s for s in users['u%s'%userid].subscriptions.find()]
     #it was mentioned just to count the subscriptions in 2013, but that information is not available
     if len(subscriptions) < 13:
         return 0.3
@@ -304,19 +324,19 @@ def subscriptions_weight(userid):
     return 1.0
 
 # get the userids from all the files in the folder
-def get_userids():
-    filenames = [f for f in os.listdir('.') if os.path.isfile(f)]
-    #print 'filename:',filenames
-    userids = []
-    for filename in filenames:
-        if filename[:6] == 'users.':    #filter out all the other files
-            filename = filename[7:]
-            if filename[:5] == '10000':
-                filename = filename[:15]
-            else:
-                filename = filename[:10]
-            userids.append(filename)
-    return set(userids)
+#def get_userids():
+#    filenames = [f for f in os.listdir('.') if os.path.isfile(f)]
+#    #print 'filename:',filenames
+#    userids = []
+#    for filename in filenames:
+#        if filename[:6] == 'users.':    #filter out all the other files
+#            filename = filename[7:]
+#            if filename[:5] == '10000':
+#                filename = filename[:15]
+#            else:
+#                filename = filename[:10]
+#            userids.append(filename)
+#    return set(userids)
 
 # calculation of the different personalities
 def calc_extraversion(userids):
