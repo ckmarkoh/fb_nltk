@@ -15,6 +15,12 @@ openness_weights = {'user_checkins':0.6, 'user_events':0.6, 'user_groups':0.4, '
 fpath='./subjects/'
 # calculate the weights for features
 
+def divide(x,y):
+    if y!=0:
+        return x / y
+    else:
+        return 0
+
 def about_me_weight(userid):
     #filename = fpath+'users.u' + userid + '.me.json'
     #try:            
@@ -213,29 +219,31 @@ def statuses_per_month_weight(userid):
    #     return 0.3    
    # statuses = [json.loads(status) for status in statuses]
     statuses =[s for s in users['u%s'%userid].statuses.find()]
-
-    last_status = statuses[0]
-    last_date = last_status['updated_time']
-    last_year = int(last_date[:4])
-    last_month = int(last_date[5:7])
-        
-    first_status = statuses[len(statuses) - 1]
-    first_date = last_status['updated_time']
-    first_year = int(last_date[:4])
-    first_month = int(last_date[5:7])
-    
-    number_of_months = 0
-    if first_month < last_month:
-        number_of_months = (last_year - first_year) * 12 + (last_month - first_month) + 1
-    else:
-        number_of_months = (last_year - first_year) * 12 - (last_month - first_month) + 1
+    if len(statuses)>0:
+        last_status = statuses[0]
+        last_date = last_status['updated_time']
+        last_year = int(last_date[:4])
+        last_month = int(last_date[5:7])
             
-    posts_per_month = len(statuses) / number_of_months
-    if posts_per_month < 13:
-        return 0.3
-    if posts_per_month < 21:
-        return 0.6
-    return 1.0
+        first_status = statuses[len(statuses) - 1]
+        first_date = last_status['updated_time']
+        first_year = int(last_date[:4])
+        first_month = int(last_date[5:7])
+        
+        number_of_months = 0
+        if first_month < last_month:
+            number_of_months = (last_year - first_year) * 12 + (last_month - first_month) + 1
+        else:
+            number_of_months = (last_year - first_year) * 12 - (last_month - first_month) + 1
+                
+        posts_per_month = divide(len(statuses),number_of_months)
+        if posts_per_month < 13:
+            return 0.3
+        if posts_per_month < 21:
+            return 0.6
+        return 1.0
+    else:
+         return 0.3
     
 def likes_per_status_weight(userid):
    # filename = fpath+'users.u' + userid + '.statuses.json'
@@ -250,7 +258,7 @@ def likes_per_status_weight(userid):
     for status in statuses:
         if 'likes' in status:
             likes += len(status['likes']['data'])
-    likes_per_status = likes / len(statuses)
+    likes_per_status = divide(likes,len(statuses))
     if likes_per_status < 13:
         return 0.3
     if likes_per_status < 21:
@@ -270,9 +278,9 @@ def comments_per_status_weight(userid):
     for status in statuses:
         if 'comments' in status:
             comments += len(status['comments']['data'])
-    if comments/len(statuses) < 6:
+    if divide(comments,len(statuses)) < 6:
         return 0.3
-    if comments/len(statuses) < 16:
+    if divide(comments,len(statuses)) < 16:
         return 0.6
     return 1.0
 
@@ -358,14 +366,14 @@ def calc_extraversion(userids):
         friends_calculated_weight += extraversion_weights['user_friends'] * friends_weight(userid)
         friendlists_calculated_weight += extraversion_weights['user_friendlists'] * friendlists_weight(userid)
     userid_count = len(userids)
-    events_calculated_weight /= userid_count
-    checkins_calculated_weight /= userid_count
-    groups_calculated_weight /= userid_count
-    tags_calculated_weight /= userid_count
-    likes_per_status_calculated_weight /= userid_count    
-    comments_per_status_calculated_weight /= userid_count
-    friends_calculated_weight /= userid_count
-    friendlists_calculated_weight /= userid_count
+    events_calculated_weight=divide(events_calculated_weight,userid_count)
+    checkins_calculated_weight=divide(checkins_calculated_weight,userid_count)
+    groups_calculated_weight=divide(groups_calculated_weight,userid_count)
+    tags_calculated_weight=divide(tags_calculated_weight,userid_count)
+    likes_per_status_calculated_weight=divide(likes_per_status_calculated_weight,userid_count)    
+    comments_per_status_calculated_weight=divide(comments_per_status_calculated_weight,userid_count)
+    friends_calculated_weight=divide(friends_calculated_weight,userid_count)
+    friendlists_calculated_weight=divide(friendlists_calculated_weight,userid_count)
     average = ((events_calculated_weight + checkins_calculated_weight + groups_calculated_weight + tags_calculated_weight + likes_per_status_calculated_weight + comments_per_status_calculated_weight + friends_calculated_weight + friendlists_calculated_weight) / 19) / sum(extraversion_weights.values())
     #print "Extraversion:"
     #print "Events weight:", events_calculated_weight
@@ -387,9 +395,9 @@ def calc_agreeableness(userids):
         tags_calculated_weight += agreeableness_weights['user_photo_video_tags'] * tagged_weight(userid)
         friends_calculated_weight += agreeableness_weights['user_friends'] * friends_weight(userid)
     userid_count = len(userids)
-    events_calculated_weight /= userid_count
-    tags_calculated_weight /= userid_count
-    friends_calculated_weight /= userid_count
+    events_calculated_weight=divide(events_calculated_weight,userid_count)
+    tags_calculated_weight=divide(tags_calculated_weight,userid_count)
+    friends_calculated_weight=divide(friends_calculated_weight,userid_count)
     average = ((events_calculated_weight + tags_calculated_weight + friends_calculated_weight) / 19) / sum(agreeableness_weights.values())
     #print "Agreeableness:"
     #print "Events weight:", events_calculated_weight
@@ -408,11 +416,11 @@ def calc_conscientiousness(userids):
         about_me_calculated_weight += conscientiousness_weights['user_about_me'] * about_me_weight(userid)
         subscriptions_calculated_weight += conscientiousness_weights['user_subscriptions'] * subscriptions_weight(userid)
     userid_count = len(userids)
-    games_activity_calculated_weight /= userid_count
-    groups_calculated_weight /= userid_count
-    about_me_calculated_weight /= userid_count
-    subscriptions_calculated_weight /= userid_count
-    average = ((games_activity_calculated_weight + groups_calculated_weight + about_me_calculated_weight + subscriptions_calculated_weight) / 19) / sum(conscientiousness_weights.values())
+    games_activity_calculated_weight=divide(games_activity_calculated_weight,userid_count)
+    groups_calculated_weight=divide(groups_calculated_weight,userid_count)
+    about_me_calculated_weight=divide(about_me_calculated_weight,userid_count)
+    subscriptions_calculated_weight=divide(subscriptions_calculated_weight,userid_count)
+    average = divide(((games_activity_calculated_weight + groups_calculated_weight + about_me_calculated_weight + subscriptions_calculated_weight) / 19) , sum(conscientiousness_weights.values()))
     #print "Conscientiousness:"
     #print "Games weight:", games_activity_calculated_weight
     #print "Groups weight:", groups_calculated_weight
@@ -427,8 +435,8 @@ def calc_neuroticism(userids):
         notes_calculated_weight += neuroticism_weights['user_notes'] * notes_weight(userid)
         statuses_per_month_calculated_weight += neuroticism_weights['user_status'] * statuses_per_month_weight(userid)
     userid_count = len(userids)
-    notes_calculated_weight /= userid_count
-    statuses_per_month_calculated_weight /= userid_count
+    notes_calculated_weight=divide(notes_calculated_weight,userid_count)
+    statuses_per_month_calculated_weight=divide(statuses_per_month_calculated_weight,userid_count)
     average = ((notes_calculated_weight + statuses_per_month_calculated_weight) / 19) / sum(neuroticism_weights.values())
     #print "Neuroticism:"
     #print "Notes weight:", notes_calculated_weight
@@ -458,17 +466,17 @@ def calc_openness(userids):
         books_calculated_weight += openness_weights['user_books'] * books_weight(userid)
         games_calculated_weight += openness_weights['user_games'] * games_weight(userid)
     userid_count = len(userids)
-    checkins_calculated_weight /= userid_count
-    events_calculated_weight /= userid_count
-    groups_calculated_weight /= userid_count
-    likes_calculated_weight /= userid_count
-    subscriptions_calculated_weight /= userid_count
-    movies_calculated_weight /= userid_count
-    music_calculated_weight /= userid_count
-    television_calculated_weight /= userid_count
-    books_calculated_weight /= userid_count
-    games_calculated_weight /= userid_count
-    average = ((checkins_calculated_weight + events_calculated_weight + groups_calculated_weight + likes_calculated_weight + subscriptions_calculated_weight + movies_calculated_weight + music_calculated_weight + television_calculated_weight + books_calculated_weight + games_calculated_weight) / 19) / sum(openness_weights.values())
+    checkins_calculated_weight=divide(checkins_calculated_weight,userid_count)
+    events_calculated_weight=divide(events_calculated_weight,userid_count)
+    groups_calculated_weight=divide(groups_calculated_weight,userid_count)
+    likes_calculated_weight=divide(likes_calculated_weight,userid_count)
+    subscriptions_calculated_weight=divide(subscriptions_calculated_weight,userid_count)
+    movies_calculated_weight=divide(movies_calculated_weight,userid_count)
+    music_calculated_weight=divide(music_calculated_weight,userid_count)
+    television_calculated_weight=divide(television_calculated_weight,userid_count)
+    books_calculated_weight=divide(books_calculated_weight,userid_count)
+    games_calculated_weight=divide(games_calculated_weight,userid_count)
+    average = divide(((checkins_calculated_weight + events_calculated_weight + groups_calculated_weight + likes_calculated_weight + subscriptions_calculated_weight + movies_calculated_weight + music_calculated_weight + television_calculated_weight + books_calculated_weight + games_calculated_weight) / 19) , sum(openness_weights.values()))
     #print "Openness:"
     #print "Checkins weight:", checkins_calculated_weight
     #print "Events weight:", events_calculated_weight
@@ -496,11 +504,11 @@ def main():
     neuroticism_average = calc_neuroticism(userids)
     openness_average = calc_openness(userids)
     average_sum = extraversion_average + agreeableness_average + conscientiousness_average + neuroticism_average + openness_average
-    extraversion_average /= average_sum
-    agreeableness_average /= average_sum
-    conscientiousness_average /= average_sum
-    neuroticism_average /= average_sum
-    openness_average /= average_sum
+    extraversion_average=divide(extraversion_average,average_sum)
+    agreeableness_average=divide(agreeableness_average,average_sum)
+    conscientiousness_average=divide(conscientiousness_average,average_sum)
+    neuroticism_average=divide(neuroticism_average,average_sum)
+    openness_average=divide(openness_average,average_sum)
     #print "Average values", "\nExtraversion:", extraversion_average, "\nAgreeableness:", agreeableness_average, "\nConscientiousness:", conscientiousness_average, "\nNeuroticism:", neuroticism_average, "\nOpenness:", openness_average
     print '{"EXT":%f,"AGR":%f,"CON":%f,"NEO":%f,"OPE":%f}'%(extraversion_average,agreeableness_average,conscientiousness_average,neuroticism_average,openness_average)
 if __name__=="__main__":
