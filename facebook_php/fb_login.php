@@ -1,7 +1,7 @@
 
 <?php
 require_once( 'facebook.php');
-
+$app_url='http://r444b.ee.ntu.edu.tw/facebook_nltk/';
 $facebook = new Facebook(array(
   #'appId'  => '611086378941074',
   #'secret' => '57ae467b8039fda188c683fc62c2021b',
@@ -26,8 +26,8 @@ if ($user) {
 } else {
 	$statusUrl = $facebook->getLoginStatusUrl();
 	//$params = array('scope' => 'read_stream','redirect_uri' => 'http://r444b.ee.ntu.edu.tw/facebook_nltk/');
+	//$params = array('req_perms' =>'read_stream,read_requests,manage_notifications','redirect_uri' => $app_url);
 	$params = array('req_perms' =>'read_stream,read_requests,manage_notifications');
-    
 	$loginUrl = $facebook->getLoginUrl($params);
 }
 
