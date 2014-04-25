@@ -159,6 +159,17 @@ require_once( './facebook_php/fb_login.php');
             //});
         }
     </script>
-    </div>
+<hr style="border: 1px; border-bottom: 1px solid #c0e9ff; background: #c0e9ff;" />
+<h4>註：</h4>
+<ol>
+<li>
+本軟體將擷取您的資訊來分析所屬個性。這些資訊僅供學術使用,不會外流,也不會外洩個資!所欲擷取的資訊包含:
+公開的個人檔案、朋友名單、自訂朋友名單、動態消息、感情狀態、生日、文章、近況更新、打卡動態、活動、社團、興趣、相片、追蹤的和追蹤者、影片、個人簡介、說讚的內容和遊戲動態
+</li>
+<li>
+若登入facebook後,沒有出現問卷表單,或者畫面沒有改變,請按<b>重新整理</b>
+</li>
+</ol>
+</div>
   </body>
 </html>

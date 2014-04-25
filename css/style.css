@@ -3,7 +3,15 @@ font-family: 'Lucida Grande', Verdana, Arial, sans-serif;
 background: #53b5dc;
 color: #0a65ae;
 }
-
+.fb_hr hr{
+color: #c0e9ff;
+background-color: #c0e9ff;
+height: 2px;
+}
+ol li{
+margin-top:5px;
+margin-bottom:5px;
+}
 
 #div_outer{
 
